@@ -7,5 +7,9 @@
     "types": ["cypress", "node"],
     "esModuleInterop": true
   },
-  "include": ["cypress/**/*.ts"]
+  "include": [
+    "cypress/**/*.ts",
+    "cypress/**/*.d.ts",
+    "node_modules/cypress/types/mocha/index.d.ts"
+  ]
 }

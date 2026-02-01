@@ -2,7 +2,7 @@
 
 declare namespace Cypress {
     interface Chainable {
-        getByTestId(testId: string): Cypress.Chainable<JQuery<HTMLElement>>
-        loginAs(userKey: string): Cypress.Chainable<JQuery<HTMLElement>>
+        getByTestId(testId: string): Chainable;
+        loginAs(userKey: string): Chainable;
     }
 }
