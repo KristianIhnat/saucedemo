@@ -1,10 +1,18 @@
 /// <reference types="cypress" />
-Cypress.Commands.add("getByTestId", (testId: string) => {
+
+type User = {
+    username: string;
+    password: string;
+};
+
+type UsersFixture = Record<string, User>;
+
+Cypress.Commands.add('getByTestId', (testId: string) => {
     return cy.get(`[data-test="${testId}"]`);
 });
 
-Cypress.Commands.add("loginAs", (userKey: string) => {
-    cy.fixture("users").then((users) => {
+Cypress.Commands.add('loginAs', (userKey: keyof UsersFixture) => {
+    cy.fixture("users").then((users: UsersFixture) => {
         const user = users[userKey];
         cy.visit("https://www.saucedemo.com");
         cy.getByTestId("username").type(user.username);
