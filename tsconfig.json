@@ -1,15 +1,35 @@
 {
   "compilerOptions": {
-    "target": "ES6",
-    "module": "commonjs",
-    "lib": ["ES6", "DOM"],
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "lib": ["ES2020", "DOM"],
     "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "types": ["cypress", "node"],
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "baseUrl": ".",
+    "paths": {
+      "@pages/*": ["cypress/support/pages/*"],
+      "@data/*": ["cypress/support/data/*"],
+      "@types/*": ["cypress/support/types/*"],
+      "@utils/*": ["cypress/support/utils/*"],
+      "@selectors/*": ["cypress/support/selectors/*"]
+    }
   },
   "include": [
     "cypress/**/*.ts",
     "cypress/**/*.d.ts",
-    "node_modules/cypress/types/mocha/index.d.ts"
+    "cypress.config.ts"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }

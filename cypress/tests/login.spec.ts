@@ -1,30 +1,44 @@
-import { getByTestId } from "../support/helpers/getByTestId";
+import { loginPage } from '../support/pages';
+import { errorMessages } from '../support/data';
 
-describe('Login functionality', () => {
-    it('logs in successfully with valid credentials', () => {
-        cy.visit('https://www.saucedemo.com')
-        getByTestId('username').type('standard_user')
-        getByTestId('password').type('secret_sauce')
-        getByTestId('login-button').click()
-        cy.url().should('include', '/inventory.html')
-    })
+describe('Login Page', () => {
+    beforeEach(() => {
+        loginPage.visit();
+    });
 
-    it('shows error messages for invalid login', () => {
-        cy.visit('https://www.saucedemo.com')
-        getByTestId('login-button').click()
-        getByTestId('error').should('contain', 'Username is required')
+    describe('Successful Login', () => {
+        it('should login successfully with valid credentials', () => {
+            loginPage.loginWith('standard_user', 'secret_sauce');
+            loginPage.verifyLoginSuccess();
+        });
 
-        getByTestId('username').type('invalid user')
-        getByTestId('login-button').click()
-        getByTestId('error').should('contain', 'Password is required')
+        it('should login successfully using custom command', () => {
+            cy.loginAs('standardUser');
+            cy.url().should('include', '/inventory.html');
+        });
+    });
 
-        getByTestId('password').type('invalid password')
-        getByTestId('login-button').click()
-        getByTestId('error').should('contain', 'Username and password do not match')
+    describe('Login Validation', () => {
+        it('should show error when username is missing', () => {
+            loginPage.clickLogin();
+            loginPage.verifyErrorMessage(errorMessages.login.usernameRequired);
+        });
 
-        getByTestId('username').clear().type('locked_out_user')
-        getByTestId('password').clear().type('secret_sauce')
-        getByTestId('login-button').click()
-        getByTestId('error').should('contain', ' Sorry, this user has been locked out')
-    })
-})
+        it('should show error when password is missing', () => {
+            loginPage
+                .enterUsername('invalid_user')
+                .clickLogin();
+            loginPage.verifyErrorMessage(errorMessages.login.passwordRequired);
+        });
+
+        it('should show error for invalid credentials', () => {
+            loginPage.loginWith('invalid_user', 'invalid_password');
+            loginPage.verifyErrorMessage(errorMessages.login.invalidCredentials);
+        });
+
+        it('should show error for locked out user', () => {
+            loginPage.loginWith('locked_out_user', 'secret_sauce');
+            loginPage.verifyErrorMessage(errorMessages.login.lockedOut);
+        });
+    });
+});

@@ -1,13 +1,26 @@
 {
-  "name": "saucedemo",
+  "name": "saucedemo-cypress-tests",
   "version": "1.0.0",
+  "description": "E2E tests for SauceDemo application using Cypress",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "cy:open": "cypress open",
-    "cy:run": "cypress run"
+    "cy:run": "cypress run",
+    "cy:run:headed": "cypress run --headed",
+    "cy:run:chrome": "cypress run --browser chrome",
+    "cy:run:firefox": "cypress run --browser firefox",
+    "test": "cypress run",
+    "test:ci": "cypress run --record",
+    "lint": "eslint cypress/**/*.ts",
+    "typecheck": "tsc --noEmit"
   },
-  "keywords": [],
+  "keywords": [
+    "cypress",
+    "e2e",
+    "testing",
+    "automation",
+    "saucedemo"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
@@ -15,5 +28,7 @@
     "cypress": "^15.9.0",
     "typescript": "^5.9.3"
   },
-  "description": ""
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }

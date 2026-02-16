@@ -1,40 +1,80 @@
-import { getByTestId } from "../support/helpers/getByTestId";   
-import { loginAs } from "../support/helpers/login";
+import {
+    inventoryPage,
+    cartPage,
+    checkoutPage,
+    orderConfirmationPage
+} from '../support/pages';
+import { customerData, products, errorMessages, successMessages } from '../support/data';
 
-beforeEach(() => {
-    loginAs('standardUser')
-})
+describe('Shopping Cart & Checkout', () => {
+    beforeEach(() => {
+        cy.loginAs('standardUser');
+    });
 
-describe('Cart & Checkout', () => {
-    it('add a product to the shopping cart and create order', () => {
-        getByTestId('add-to-cart-sauce-labs-backpack').click()
-        getByTestId('shopping-cart-link').click()
-        cy.url().should('include', '/cart.html')
-        getByTestId('item-quantity').should('have.text', '1')
-        getByTestId('inventory-item-name').should('have.text', 'Sauce Labs Backpack')
-        getByTestId('checkout').click()
-        getByTestId('firstName').type('Sherlock')
-        getByTestId('lastName').type('Holmes')
-        getByTestId('postalCode').type('4321')
-        getByTestId('continue').click()
-        getByTestId('finish').click()
-        getByTestId('complete-header')
-            .should('have.text', 'Thank you for your order!')
-    })
+    describe('Add to Cart', () => {
+        it('should add a product to the shopping cart', () => {
+            inventoryPage.addProductToCart('backpack');
+            inventoryPage.verifyCartBadgeCount(1);
+        });
 
-    it('shows error messages for invalid checkout information', () => {
-        getByTestId('add-to-cart-sauce-labs-backpack').click()
-        getByTestId('shopping-cart-link').click()
-        getByTestId('checkout').click()
-        getByTestId('continue').click()
-        getByTestId('error').should('contain', 'First Name is required')
+        it('should add multiple products to the shopping cart', () => {
+            inventoryPage
+                .addProductToCart('backpack')
+                .addProductToCart('bikeLight');
+            inventoryPage.verifyCartBadgeCount(2);
+        });
+    });
 
-        getByTestId('firstName').type('Sherlock')
-        getByTestId('continue').click()
-        getByTestId('error').should('contain', 'Last Name is required')
+    describe('Complete Order', () => {
+        it('should complete order with single product', () => {
+            // Add product to cart
+            inventoryPage.addProductToCart('backpack');
+            inventoryPage.goToCart();
 
-        getByTestId('lastName').type('Holmes')
-        getByTestId('continue').click()
-        getByTestId('error').should('contain', 'Postal Code is required')
-    })
-})
+            // Verify cart contents
+            cartPage.verifyPageLoaded();
+            cartPage
+                .verifyItemQuantity(1)
+                .verifyItemName(products.backpack.name);
+
+            // Proceed to checkout
+            cartPage.proceedToCheckout();
+
+            // Fill checkout information and complete order
+            checkoutPage.fillCustomerInfo(customerData.valid);
+            checkoutPage.clickContinue();
+            checkoutPage.clickFinish();
+
+            // Verify order completion
+            orderConfirmationPage.verifyOrderComplete(successMessages.orderComplete);
+        });
+    });
+
+    describe('Checkout Validation', () => {
+        beforeEach(() => {
+            inventoryPage.addProductToCart('backpack');
+            inventoryPage.goToCart();
+            cartPage.proceedToCheckout();
+        });
+
+        it('should show error when first name is missing', () => {
+            checkoutPage.clickContinue();
+            checkoutPage.verifyErrorMessage(errorMessages.checkout.firstNameRequired);
+        });
+
+        it('should show error when last name is missing', () => {
+            checkoutPage
+                .enterFirstName('Sherlock')
+                .clickContinue();
+            checkoutPage.verifyErrorMessage(errorMessages.checkout.lastNameRequired);
+        });
+
+        it('should show error when postal code is missing', () => {
+            checkoutPage
+                .enterFirstName('Sherlock')
+                .enterLastName('Holmes')
+                .clickContinue();
+            checkoutPage.verifyErrorMessage(errorMessages.checkout.postalCodeRequired);
+        });
+    });
+});
